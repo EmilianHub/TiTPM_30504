@@ -1,4 +1,3 @@
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -8,12 +7,12 @@ public class SzyfrownieRsa {
         Scanner cin = new Scanner(System.in);
         System.out.println("Podaj tekst do zaszyfowania: ");
         String password = cin.nextLine();
-        ArrayList<Integer> asciiArray = splitToThreeLetterWord(password);
+        ArrayList<Integer> asciiArray = convertToAscii(password);
         System.out.println("Zakodowane: " + asciiArray);
         System.out.println("Odkodowane: " + decryptWithPrivateKey(asciiArray));
     }
 
-    private static ArrayList<Integer> splitToThreeLetterWord(String password){
+    private static ArrayList<Integer> convertToAscii(String password){
         ArrayList<Integer> asciiArray = new ArrayList<>();
         for(int i = 0; i<password.length(); i++){
             asciiArray.add((int) password.toUpperCase().charAt(i));
