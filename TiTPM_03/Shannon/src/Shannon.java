@@ -11,11 +11,9 @@ public class Shannon {
         System.out.println(characterLongMap);
         LinkedHashMap<Character, String> binConvert = podzielNaRowne(characterLongMap);
         System.out.println(binConvert);
-        /*Map<Character, String> characterStringMap = convertToBinar(characterLongMap);
-        System.out.println(characterStringMap);
-        String encryptedMessage = encryptMessage(characterStringMap, ciagZnakow);
+        String encryptedMessage = encryptMessage(binConvert, ciagZnakow);
         System.out.println("Zaszyfrowana wiadomosc: " + encryptedMessage);
-        System.out.println("Odszyfrowana wiadomosc: " + decryptMessage(characterStringMap, encryptedMessage));*/
+        System.out.println("Odszyfrowana wiadomosc: " + decryptMessage(binConvert, encryptedMessage));
     }
 
     public static LinkedHashMap<Character, Long> zliczWystapienia(String ciagZnakow){
@@ -99,22 +97,6 @@ public class Shannon {
         return resultMap;
     }
 
-    public static Map<Character, String> convertToBinar(Map<Character, Long> mapa){
-        Map<Character, String> wartoscBinarna = new LinkedHashMap<>();
-        int i = mapa.size()-1;
-        String bin = "1";
-        for (Character wystapienie: mapa.keySet()){
-            if(i == 0){
-                wartoscBinarna.put(wystapienie, "0");
-            }
-            else {
-                wartoscBinarna.put(wystapienie, bin.repeat(i) + "0");
-            }
-            i--;
-        }
-        return wartoscBinarna;
-    }
-
     public static String encryptMessage(Map<Character, String> wartoscBinarna, String wiadomosc){
         for (Map.Entry<Character, String> szyfr : wartoscBinarna.entrySet()){
             wiadomosc = wiadomosc.replace(szyfr.getKey().toString(), szyfr.getValue());
@@ -123,7 +105,11 @@ public class Shannon {
     }
 
     private static String decryptMessage(Map<Character, String> wartoscBinarna, String encryptedMessage){
-        for (Map.Entry<Character, String> szyfr : wartoscBinarna.entrySet()){
+        LinkedHashMap<Character, String> reverseOrder = new LinkedHashMap<>();
+                wartoscBinarna.entrySet().stream()
+                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                        .forEachOrdered(values -> reverseOrder.put(values.getKey(), values.getValue()));
+        for (Map.Entry<Character, String> szyfr : reverseOrder.entrySet()){
             encryptedMessage = encryptedMessage.replace(szyfr.getValue(), szyfr.getKey().toString());
         }
         return encryptedMessage;
