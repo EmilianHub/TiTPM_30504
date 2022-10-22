@@ -65,7 +65,6 @@ public class Shannon {
         int sum = 0;
         int inter = 0;
         for(Map.Entry<Character, Long> iterator : mapa.entrySet()){
-            inter++;
             Map.Entry<Long, String> bin = mapBin.entrySet().stream().filter(value -> value.getKey() > 0).findFirst().get();
             if(bin.getKey() - sum <= 0){
                 mapBin.remove(bin.getKey());
@@ -81,17 +80,21 @@ public class Shannon {
                 sum = 0;
                 inter = 0;
             }
-            else if (isFirst && bin.getKey() - sum > 0){
+            if (isFirst && bin.getKey() - sum > 0){
                 sum += sum + iterator.getValue();
                 resultMap.put(iterator.getKey(), bin.getValue() + 0);
                 isFirst = false;
             } else{
                 resultMap.put(iterator.getKey(), bin.getValue()+1);
                 sum += iterator.getValue();
+                if(bin.getKey() - sum > 0){
+                    resultMap.replace(iterator.getKey(), resultMap.get(iterator.getKey()) + 0);
+                    mapBin.replace(bin.getKey(), bin.getValue()+1);
+                }
                 mapBin.replace(bin.getKey(), bin.getValue() + 1);
                 isFirst = true;
             }
-
+            inter++;
         }
         return resultMap;
     }
