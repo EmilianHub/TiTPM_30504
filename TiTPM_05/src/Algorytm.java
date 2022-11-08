@@ -39,7 +39,8 @@ public class Algorytm {
             }else {
                 pattern += wiadomosc.substring(j, j + 2);
                 if (mapaPodstawowa.containsValue(pattern)) {
-                    pattern = String.valueOf(wiadomosc.charAt(j));
+                    int indexToConcat = pattern.length() - 1;
+                    pattern = pattern.substring(0, indexToConcat);
                 } else {
                     int index = pattern.length() - 1;
                     String shortedMessage = pattern.substring(0, index);
@@ -81,7 +82,7 @@ public class Algorytm {
                 Formatter formatter = new Formatter(fileWriter);
 
                 for (Map.Entry<Integer, String> mapka : mapaPodstawowa.entrySet()){
-                    formatter.format("%s | %s\r\n", mapka.getKey(), mapka.getValue());
+                    formatter.format("%d | %s\r\n", mapka.getKey(), mapka.getValue());
                 }
                 formatter.close();
                 fileWriter.close();
@@ -99,6 +100,32 @@ public class Algorytm {
             decryptedMessage += mapaPodstawowa.get(index);
         }
         System.out.println("\nOdszyfrowna wiadomosc: " + decryptedMessage);
+    }
+
+    public void odczytajZPliku(){
+        try{
+            mapaPodstawowa.clear();
+            System.out.print("Podaj nazwe pliku: ");
+            String nazwaPliku = scanner.nextLine();
+            File file = new File(nazwaPliku);
+            String odczytZpliku;
+            if (file.exists()){
+                Scanner fileScanner = new Scanner(file);
+                while(fileScanner.hasNextLine()){
+                    odczytZpliku = fileScanner.nextLine();
+                    String[] split = odczytZpliku.split("[|]\s");
+                    int index = Integer.parseInt(split[0].replace(" ", ""));
+                    String values = split[1].replace(" ", "");
+                    mapaPodstawowa.put(index, values);
+                }
+                fileScanner.close();
+            }
+            else{
+                System.out.println("Plik nie istnieje");
+            }
+        }catch (Exception e){
+            System.out.println("Wystapil blad podczas odczytu pliku");
+        }
     }
 }
 
