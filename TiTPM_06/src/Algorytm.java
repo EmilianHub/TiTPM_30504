@@ -6,12 +6,12 @@ import java.util.stream.Collectors;
 public class Algorytm {
     private String wiadomosc;
     private Scanner scanner = new Scanner(System.in);
+    private Scanner scannerPlik = new Scanner(System.in);
     private String pattern ="____";
     private String buffor = "";
     private String mapKey;
     private Integer wielkoscSlownika;
     private LinkedHashMap<String, String> mapaPodstawowa = new LinkedHashMap<>();
-    private LinkedList<Integer> encryptedMessage = new LinkedList<>();
     private Integer indexStart;
     private Integer indexEnd;
 
@@ -38,10 +38,12 @@ public class Algorytm {
     private void rozszerzSlownik(){
         for(int j = 1; j<=wiadomosc.length()+wielkoscSlownika; j++){
             if(j >= wiadomosc.length()-1){
+                pattern = buffor;
                 buffor = String.valueOf(wiadomosc.charAt(wiadomosc.length()-1));
                 if (conatinsValue(buffor)) {
                     mapKey = String.format("(%d, %d, %s)", indexStart, indexEnd, "_");
                     mapaPodstawowa.put(mapKey, pattern);
+                    break;
                 }
             }else {
                 if(buffor.length() == 0){
@@ -65,8 +67,8 @@ public class Algorytm {
                 else {
                     char firstLetter = buffor.charAt(0);
                     mapKey = String.format("(0, 0, %s)", firstLetter);
-                    pattern = pattern.substring(1) + firstLetter;
                     mapaPodstawowa.put(mapKey, pattern);
+                    pattern = pattern.substring(1) + firstLetter;
                     buffor = "";
                 }
             }
@@ -80,14 +82,14 @@ public class Algorytm {
         }
     }
 
-    /*public void zapiszDoPlikuONazwie() {
+    public void zapiszDoPlikuONazwie() {
         if (mapaPodstawowa.isEmpty()){
             System.out.println("\nSłownik jest pusty\nZapis do pliku przerwany");
             return;
         }
         try{
             System.out.print("\nPodaj nazwe pliku: ");
-            String nazwaPliku = scanner.nextLine();
+            String nazwaPliku = scannerPlik.nextLine();
             File file = new File(nazwaPliku);
             if(!file.exists()){
                 System.out.println("Plik zostal utworzony");
@@ -97,8 +99,8 @@ public class Algorytm {
                 FileWriter fileWriter = new FileWriter(file);
                 Formatter formatter = new Formatter(fileWriter);
 
-                for (Map.Entry<Integer, String> mapka : mapaPodstawowa.entrySet()){
-                    formatter.format("%d | %s\r\n", mapka.getKey(), mapka.getValue());
+                for (Map.Entry<String, String> mapka : mapaPodstawowa.entrySet()){
+                    formatter.format("%s | %s\r\n", mapka.getKey(), mapka.getValue());
                 }
                 formatter.close();
                 fileWriter.close();
@@ -112,25 +114,32 @@ public class Algorytm {
 
     public void decryptMessage(){
         String decryptedMessage = "";
-        for(Integer index : encryptedMessage){
-            decryptedMessage += mapaPodstawowa.get(index);
+        for(Map.Entry<String, String> index : mapaPodstawowa.entrySet()){
+            String key = index.getKey().replaceAll("[()]", "");
+            String[] messageIndex = key.split(", ");
+            if(messageIndex[2].equals("_")){
+                break;
+            }
+            int lowerBound = Integer.parseInt(messageIndex[0]);
+            int upperBound = Integer.parseInt(messageIndex[1]) + lowerBound;
+            decryptedMessage += index.getValue().substring(lowerBound, upperBound) + messageIndex[2];
         }
         System.out.println("\nOdszyfrowna wiadomosc: " + decryptedMessage);
-    }*/
+    }
 
-    /*public void odczytajZPliku(){
+    public void odczytajZPliku(){
         try{
             mapaPodstawowa.clear();
             System.out.print("Podaj nazwe pliku: ");
-            String nazwaPliku = scanner.nextLine();
+            String nazwaPliku = scannerPlik.nextLine();
             File file = new File(nazwaPliku);
             String odczytZpliku;
             if (file.exists()){
                 Scanner fileScanner = new Scanner(file);
                 while(fileScanner.hasNextLine()){
                     odczytZpliku = fileScanner.nextLine();
-                    String[] split = odczytZpliku.split("[|]\s");
-                    int index = Integer.parseInt(split[0].replace(" ", ""));
+                    String[] split = odczytZpliku.split("[|]");
+                    String index = split[0].replace(") ", ")");
                     String values = split[1].replace(" ", "");
                     mapaPodstawowa.put(index, values);
                 }
@@ -142,7 +151,11 @@ public class Algorytm {
         }catch (Exception e){
             System.out.println("Wystapil blad podczas odczytu pliku");
         }
-    }*/
+        finally {
+            scannerPlik.close();
+            scanner.close();
+        }
+    }
 
     private boolean conatinsValue(String buffor){
         int bufforSize = wielkoscSlownika/2;
